@@ -1,6 +1,6 @@
 # Secure Task Manager
 
-A secure web application developed 
+A secure web application developed as part of IKB21503 Secure Software Development coursework at UniKL MIIT.
 
 ## Built With
 - Django (Python)
