@@ -1,13 +1,244 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
-<h2>Register</h2>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form>
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --border: #2a2a30;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --text: #e8e8ec;
+    --muted: #6b6b78;
+    --input-bg: #111114;
+    --danger: #ff5c5c;
+  }
 
-<p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-wrap {
+    width: 100%;
+    max-width: 460px;
+    padding: 32px 24px 80px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+    line-height: 1.1;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .field-group:last-of-type { margin-bottom: 0; }
+
+  .field-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field-input {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 12px 16px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  .field-input::placeholder { color: var(--muted); }
+
+  .field-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .error-hint {
+    font-size: 0.78rem;
+    color: var(--danger);
+  }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--accent);
+    color: #0f0f11;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+    margin-top: 24px;
+  }
+
+  .btn-submit:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+
+  .login-link {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 20px;
+  }
+
+  .login-link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .login-link a:hover { text-decoration: underline; }
+</style>
+
+<div class="form-wrap">
+  <div class="form-eyebrow">Create account</div>
+  <h1 class="form-title">Register</h1>
+
+  <div class="form-card">
+    <form method="POST" action="">
+      {% csrf_token %}
+
+      <!-- Username -->
+      <div class="field-group">
+        <label class="field-label" for="id_username">Username</label>
+        <input
+          class="field-input"
+          type="text"
+          id="id_username"
+          name="username"
+          placeholder="Choose a username"
+          value="{{ form.username.value|default:'' }}"
+          required
+        >
+        <span class="field-hint">150 characters or fewer. Letters, digits and @/./+/-/_ only.</span>
+        {% if form.username.errors %}
+          <div class="error-hint">{{ form.username.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Email -->
+      <div class="field-group">
+        <label class="field-label" for="id_email">Email</label>
+        <input
+          class="field-input"
+          type="email"
+          id="id_email"
+          name="email"
+          placeholder="your@email.com"
+          value="{{ form.email.value|default:'' }}"
+        >
+        {% if form.email.errors %}
+          <div class="error-hint">{{ form.email.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Password -->
+      <div class="field-group">
+        <label class="field-label" for="id_password1">Password</label>
+        <input
+          class="field-input"
+          type="password"
+          id="id_password1"
+          name="password1"
+          placeholder="Create a strong password"
+          required
+        >
+        <span class="field-hint">
+          At least 8 characters. Can't be too similar to your username or entirely numeric.
+        </span>
+        {% if form.password1.errors %}
+          <div class="error-hint">{{ form.password1.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Password Confirmation -->
+      <div class="field-group">
+        <label class="field-label" for="id_password2">Confirm Password</label>
+        <input
+          class="field-input"
+          type="password"
+          id="id_password2"
+          name="password2"
+          placeholder="Repeat your password"
+          required
+        >
+        {% if form.password2.errors %}
+          <div class="error-hint">{{ form.password2.errors|join:", " }}</div>
+        {% endif %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="error-hint" style="margin-top:8px;">{{ form.non_field_errors|join:", " }}</div>
+      {% endif %}
+
+      <button type="submit" class="btn-submit">Create Account</button>
+    </form>
+  </div>
+
+  <p class="login-link">
+    Already have an account? <a href="{% url 'login' %}">Login here</a>
+  </p>
+</div>
 {% endblock %}

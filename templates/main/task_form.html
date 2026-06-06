@@ -1,0 +1,258 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --border: #2a2a30;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --text: #e8e8ec;
+    --muted: #6b6b78;
+    --input-bg: #111114;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .form-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .form-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 40px;
+    line-height: 1.1;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field-label span {
+    color: var(--accent);
+    margin-left: 2px;
+  }
+
+  .field-input,
+  .field-textarea,
+  .field-select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 12px 16px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    appearance: none;
+  }
+
+  .field-input:focus,
+  .field-textarea:focus,
+  .field-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+
+  .field-input::placeholder,
+  .field-textarea::placeholder { color: var(--muted); }
+
+  .field-textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-submit {
+    flex: 1;
+    background: var(--accent);
+    color: #0f0f11;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  .btn-submit:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+
+  .btn-cancel {
+    padding: 14px 22px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-cancel:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  .error-hint {
+    font-size: 0.78rem;
+    color: #ff5c5c;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 520px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-card { padding: 24px; }
+  }
+</style>
+
+<div class="form-wrap">
+  <div class="form-eyebrow">
+    {% if task %}Edit Task{% else %}New Task{% endif %}
+  </div>
+  <h1 class="form-title">
+    {% if task %}Update your task{% else %}Create a task{% endif %}
+  </h1>
+
+  <div class="form-card">
+    <form method="post" action="">
+      {% csrf_token %}
+
+      <div style="display:flex;flex-direction:column;gap:24px;">
+        <div class="field-group">
+          <label class="field-label" for="id_title">Title <span>*</span></label>
+          <input
+            class="field-input"
+            type="text"
+            id="id_title"
+            name="title"
+            placeholder="e.g. Design new landing page"
+            value="{{ form.title.value|default:'' }}"
+            required
+          >
+          {% if form.title.errors %}
+            <div class="error-hint">{{ form.title.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="id_description">Description</label>
+          <textarea
+            class="field-textarea"
+            id="id_description"
+            name="description"
+            placeholder="Add more detail about this task..."
+          >{{ form.description.value|default:'' }}</textarea>
+          {% if form.description.errors %}
+            <div class="error-hint">{{ form.description.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label" for="id_status">Status <span>*</span></label>
+            <select class="field-select" id="id_status" name="status">
+              <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>Pending</option>
+              <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="done" {% if form.status.value == 'done' %}selected{% endif %}>Done</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="id_due_date">Due Date</label>
+            <input
+              class="field-input"
+              type="date"
+              id="id_due_date"
+              name="due_date"
+              value="{{ form.due_date.value|default:'' }}"
+            >
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">
+            {% if task %}Save Changes{% else %}Create Task{% endif %}
+          </button>
+          <a href="{% url 'dashboard' %}" class="btn-cancel">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

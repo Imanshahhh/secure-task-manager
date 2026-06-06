@@ -1,2 +1,245 @@
 <h1>Dashboard</h1>
 <p>System is running</p>
+{% extends 'main/base.html' %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #18181c;
+    --border: #2a2a30;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --text: #e8e8ec;
+    --muted: #6b6b78;
+    --danger: #ff5c5c;
+    --danger-dim: rgba(255,92,92,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .dash-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+
+  .dash-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .dash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .dash-title span {
+    color: var(--accent);
+    display: block;
+  }
+
+  .btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #0f0f11;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    padding: 12px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  .btn-create:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+
+  .btn-create svg { flex-shrink: 0; }
+
+  .task-count {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: slideIn 0.3s ease both;
+  }
+
+  .task-card:hover {
+    border-color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-card:nth-child(1) { animation-delay: 0.05s; }
+  .task-card:nth-child(2) { animation-delay: 0.1s; }
+  .task-card:nth-child(3) { animation-delay: 0.15s; }
+  .task-card:nth-child(4) { animation-delay: 0.2s; }
+  .task-card:nth-child(5) { animation-delay: 0.25s; }
+
+  .task-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .task-dot.done { background: var(--muted); }
+
+  .task-body { flex: 1; min-width: 0; }
+
+  .task-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+
+  .task-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .task-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .btn-icon.edit:hover {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .btn-icon.delete:hover {
+    background: var(--danger-dim);
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+
+  .empty-state p { font-size: 0.95rem; }
+</style>
+
+<div class="dash-wrap">
+  <div class="dash-header">
+    <div class="dash-title">
+      My Tasks
+      <span>Dashboard</span>
+    </div>
+    <a href="{% url 'task_create' %}" class="btn-create">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Create Task
+    </a>
+  </div>
+
+  {% if tasks %}
+    <p class="task-count">{{ tasks|length }} task{{ tasks|length|pluralize }}</p>
+    <div class="task-list">
+      {% for task in tasks %}
+      <div class="task-card">
+        <div class="task-dot {% if task.is_done %}done{% endif %}"></div>
+        <div class="task-body">
+          <div class="task-name">{{ task.title }}</div>
+          <div class="task-meta">{{ task.created_at|date:"M d, Y" }} &middot; {{ task.status }}</div>
+        </div>
+        <div class="task-actions">
+          <a href="{% url 'task_edit' task.pk %}" class="btn-icon edit" title="Edit">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M10.5 2L13 4.5l-8 8H2.5V10l8-8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="{% url 'task_delete' task.pk %}" class="btn-icon delete" title="Delete">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M3 4h9M6 4V2.5h3V4M5.5 4l.5 7.5h3L10 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <p>No tasks yet. Create your first one!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
