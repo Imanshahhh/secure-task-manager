@@ -127,6 +127,8 @@ def profile_view(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+        else:
+            print(form.errors)
             log_action(request.user, 'Updated profile', request)
             messages.success(request, 'Profile updated.')
             return redirect('profile')

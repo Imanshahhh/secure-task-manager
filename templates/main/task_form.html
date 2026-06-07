@@ -80,10 +80,7 @@
     color: var(--muted);
   }
 
-  .field-label span {
-    color: var(--accent);
-    margin-left: 2px;
-  }
+  .field-label span { color: var(--accent); margin-left: 2px; }
 
   .field-input,
   .field-textarea,
@@ -146,10 +143,7 @@
     transition: opacity 0.15s, transform 0.15s;
   }
 
-  .btn-submit:hover {
-    opacity: 0.88;
-    transform: translateY(-1px);
-  }
+  .btn-submit:hover { opacity: 0.88; transform: translateY(-1px); }
 
   .btn-cancel {
     padding: 14px 22px;
@@ -164,16 +158,9 @@
     white-space: nowrap;
   }
 
-  .btn-cancel:hover {
-    border-color: var(--text);
-    color: var(--text);
-  }
+  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
 
-  .error-hint {
-    font-size: 0.78rem;
-    color: #ff5c5c;
-    margin-top: 4px;
-  }
+  .error-hint { font-size: 0.78rem; color: #ff5c5c; margin-top: 4px; }
 
   @media (max-width: 520px) {
     .form-row { grid-template-columns: 1fr; }
@@ -182,29 +169,21 @@
 </style>
 
 <div class="form-wrap">
-  <div class="form-eyebrow">
-    {% if task %}Edit Task{% else %}New Task{% endif %}
-  </div>
+  <div class="form-eyebrow">{{ action }} Task</div>
   <h1 class="form-title">
-    {% if task %}Update your task{% else %}Create a task{% endif %}
+    {% if action == 'Edit' %}Update your task{% else %}Create a task{% endif %}
   </h1>
 
   <div class="form-card">
-    <form method="post" action="">
+    <form method="post">
       {% csrf_token %}
-
       <div style="display:flex;flex-direction:column;gap:24px;">
+
         <div class="field-group">
           <label class="field-label" for="id_title">Title <span>*</span></label>
-          <input
-            class="field-input"
-            type="text"
-            id="id_title"
-            name="title"
+          <input class="field-input" type="text" id="id_title" name="title"
             placeholder="e.g. Design new landing page"
-            value="{{ form.title.value|default:'' }}"
-            required
-          >
+            value="{{ form.title.value|default:'' }}" required>
           {% if form.title.errors %}
             <div class="error-hint">{{ form.title.errors|join:", " }}</div>
           {% endif %}
@@ -212,12 +191,8 @@
 
         <div class="field-group">
           <label class="field-label" for="id_description">Description</label>
-          <textarea
-            class="field-textarea"
-            id="id_description"
-            name="description"
-            placeholder="Add more detail about this task..."
-          >{{ form.description.value|default:'' }}</textarea>
+          <textarea class="field-textarea" id="id_description" name="description"
+            placeholder="Add more detail about this task...">{{ form.description.value|default:'' }}</textarea>
           {% if form.description.errors %}
             <div class="error-hint">{{ form.description.errors|join:", " }}</div>
           {% endif %}
@@ -225,32 +200,31 @@
 
         <div class="form-row">
           <div class="field-group">
-            <label class="field-label" for="id_status">Status <span>*</span></label>
-            <select class="field-select" id="id_status" name="status">
-              <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>Pending</option>
-              <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
-              <option value="done" {% if form.status.value == 'done' %}selected{% endif %}>Done</option>
+            <label class="field-label" for="id_priority">Priority <span>*</span></label>
+            <select class="field-select" id="id_priority" name="priority">
+              <option value="low" {% if form.priority.value == 'low' %}selected{% endif %}>Low</option>
+              <option value="medium" {% if form.priority.value == 'medium' %}selected{% endif %}>Medium</option>
+              <option value="high" {% if form.priority.value == 'high' %}selected{% endif %}>High</option>
             </select>
           </div>
 
           <div class="field-group">
-            <label class="field-label" for="id_due_date">Due Date</label>
-            <input
-              class="field-input"
-              type="date"
-              id="id_due_date"
-              name="due_date"
-              value="{{ form.due_date.value|default:'' }}"
-            >
+            <label class="field-label" for="id_status">Status <span>*</span></label>
+            <select class="field-select" id="id_status" name="status">
+              <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>Pending</option>
+              <option value="in_progress" {% if form.status.value == 'in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="completed" {% if form.status.value == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
           </div>
         </div>
 
         <div class="form-actions">
           <button type="submit" class="btn-submit">
-            {% if task %}Save Changes{% else %}Create Task{% endif %}
+            {% if action == 'Edit' %}Save Changes{% else %}Create Task{% endif %}
           </button>
           <a href="{% url 'dashboard' %}" class="btn-cancel">Cancel</a>
         </div>
+
       </div>
     </form>
   </div>
