@@ -1,7 +1,24 @@
+argon2-cffi==25.1.0
+argon2-cffi-bindings==25.1.0
 asgiref==3.11.1
+bandit==1.8.6
+cffi==2.0.0
+colorama==0.4.6
 Django==4.2.30
+markdown-it-py==3.0.0
+mdurl==0.1.2
 pillow==11.3.0
+pycparser==2.23
+Pygments==2.20.0
 python-dotenv==1.2.1
+PyYAML==6.0.3
+rich==15.0.0
 sqlparse==0.5.5
+stevedore==5.5.0
 typing_extensions==4.15.0
 tzdata==2026.2
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
