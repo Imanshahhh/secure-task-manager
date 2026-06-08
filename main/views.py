@@ -6,6 +6,9 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import Task, AuditLog, Profile
 from .forms import RegisterForm, TaskForm, ProfileForm
+import subprocess
+import hashlib
+from django.db import connection
 
 
 def get_client_ip(request):
@@ -150,3 +153,27 @@ def custom_404(request, exception):
 
 def custom_500(request):
     return render(request, 'main/500.html', status=500)
+
+# VULNERABLE: Command injection
+def ping_host(request):
+    host = request.GET.get('host', '')
+    result = subprocess.check_output(f'ping {host}', shell=True)
+    return render(request, 'main/dashboard.html', {'ping_result': result})
+
+# VULNERABLE: Raw SQL injection
+def search_tasks(request):
+    query = request.GET.get('q', '')
+    with connection.cursor() as cursor:
+        cursor.execute(f"SELECT * FROM main_task WHERE title = '{query}'")
+        results = cursor.fetchall()
+    return render(request, 'main/dashboard.html', {'tasks': results})
+
+# VULNERABLE: MD5 password hashing
+def weak_hash(password):
+    return hashlib.md5(password.encode()).hexdigest()
+
+# VULNERABLE: XSS - reflected input
+def search_view(request):
+    query = request.GET.get('q', '')
+    from django.utils.safestring import mark_safe
+    return render(request, 'main/dashboard.html', {'search_result': mark_safe(query)})
