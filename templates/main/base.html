@@ -101,15 +101,16 @@
     }
 
     /* ── Messages ── */
-    .messages {
-      max-width: 860px;
-      margin: 20px auto 0;
-      padding: 0 24px;
+   .messages {
+      position: fixed;
+      top: 70px;
+      right: 24px;
+      width: 320px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-    }
-
+      z-index: 999;
+   }
     .message {
       padding: 12px 18px;
       border-radius: 10px;
@@ -181,7 +182,7 @@
 </nav>
 {% endif %}
 
-{% if messages %}
+{% if messages and request.resolver_match.url_name != 'login' %}
 <div class="messages">
   {% for message in messages %}
   <div class="message {{ message.tags }}">{{ message }}</div>
