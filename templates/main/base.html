@@ -241,9 +241,13 @@
   }
 
   /* Make sure content stays above canvas */
-  nav, main, .messages {
+  nav, main {
     position: relative;
     z-index: 1;
+  }
+
+  .messages {
+    z-index: 1000 !important;
   }
 </style>
 
