@@ -178,3 +178,15 @@ def custom_404(request, exception):
 
 def custom_500(request):
     return render(request, 'main/500.html', status=500)
+
+@login_required
+def task_complete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if not request.user.is_staff and task.created_by != request.user:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+    if request.method == 'POST':
+        task.status = 'completed'
+        task.save()
+        log_action(request.user, f'Completed task: {task.title}', request)
+    return redirect('dashboard')
