@@ -212,7 +212,26 @@
           <div class="error-hint">{{ form.password1.errors|join:", " }}</div>
         {% endif %}
       </div>
-
+      <div id="strength-bar" style="
+         height: 4px;
+         border-radius: 2px;
+         background: var(--border);
+         margin-top: -16px;
+         overflow: hidden;
+          ">
+           <div id="strength-fill" style="
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            "></div>
+           </div>
+           <div id="strength-text" style="
+           font-size: 0.75rem;
+           color: var(--muted);
+           margin-top: 4px;
+           margin-bottom: 8px;
+     "></div>
       <!-- Password Confirmation -->
       <div class="field-group">
         <label class="field-label" for="id_password2">Confirm Password</label>
@@ -241,4 +260,36 @@
     Already have an account? <a href="{% url 'login' %}">Login here</a>
   </p>
 </div>
+<script>
+  document.getElementById('id_password1').addEventListener('input', function() {
+    const val = this.value;
+    const fill = document.getElementById('strength-fill');
+    const text = document.getElementById('strength-text');
+    let score = 0;
+
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+      { color: '#ff5c5c', label: 'Weak', width: '25%' },
+      { color: '#f0a832', label: 'Fair', width: '50%' },
+      { color: '#64b4ff', label: 'Good', width: '75%' },
+      { color: '#c8f060', label: 'Strong', width: '100%' },
+    ];
+
+    if (val.length === 0) {
+      fill.style.width = '0%';
+      text.textContent = '';
+      return;
+    }
+
+    const level = levels[score - 1] || levels[0];
+    fill.style.width = level.width;
+    fill.style.background = level.color;
+    text.style.color = level.color;
+    text.textContent = level.label;
+  });
+</script>
 {% endblock %}
