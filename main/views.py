@@ -74,10 +74,26 @@ def register_view(request):
 
 @login_required
 def dashboard(request):
+    from django.db.models import Case, When, IntegerField
+    priority_order = Case(
+        When(priority='high', then=0),
+        When(priority='medium', then=1),
+        When(priority='low', then=2),
+        output_field=IntegerField()
+    )
+    status_order = Case(
+        When(status='completed', then=1),
+        default=0,
+        output_field=IntegerField()
+    )
     if request.user.is_staff:
         tasks = Task.objects.all()
     else:
         tasks = Task.objects.filter(created_by=request.user)
+    tasks = tasks.annotate(
+        p_order=priority_order,
+        s_order=status_order
+    ).order_by('s_order', 'p_order')
     completed = tasks.filter(status='completed').count()
     return render(request, 'main/dashboard.html', {
         'tasks': tasks,
