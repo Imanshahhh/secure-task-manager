@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.utils import timezone
 from .models import Task, AuditLog, Profile
 from .forms import RegisterForm, TaskForm, ProfileForm
+from django.utils import timezone
 
 
 def get_client_ip(request):
@@ -14,6 +15,13 @@ def get_client_ip(request):
         return x_forwarded_for.split(',')[0]
     return request.META.get('REMOTE_ADDR')
 
+def get_greeting():
+    hour = timezone.localtime().hour
+    if hour < 12:
+        return "Good morning"
+    elif hour < 18:
+        return "Good afternoon"
+    return "Good evening"
 
 def log_action(user, action, request):
     AuditLog.objects.create(
@@ -70,8 +78,12 @@ def dashboard(request):
         tasks = Task.objects.all()
     else:
         tasks = Task.objects.filter(created_by=request.user)
-    return render(request, 'main/dashboard.html', {'tasks': tasks})
-
+    completed = tasks.filter(status='completed').count()
+    return render(request, 'main/dashboard.html', {
+        'tasks': tasks,
+        'greeting': get_greeting(),
+        'completed': completed
+    })
 
 @login_required
 def task_create(request):

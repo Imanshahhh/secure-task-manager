@@ -192,12 +192,27 @@
   }
 
   .empty-state p { font-size: 0.95rem; }
+
+  .priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+  .priority-low { background: rgba(200,240,96,0.15); color: #c8f060; }
+  .priority-medium { background: rgba(240,168,50,0.15); color: #f0a832; }
+  .priority-high { background: rgba(255,92,92,0.15); color: #ff5c5c; }
 </style>
 
 <div class="dash-wrap">
   <div class="dash-header">
     <div class="dash-title">
-      My Tasks
+       {{ greeting }}, {{ user.username }}
       <span>Dashboard</span>
     </div>
     <a href="{% url 'task_create' %}" class="btn-create">
@@ -209,15 +224,18 @@
   </div>
 
   {% if tasks %}
-    <p class="task-count">{{ tasks|length }} task{{ tasks|length|pluralize }}</p>
+   <p class="task-count">{{ tasks|length }} task{{ tasks|length|pluralize }} &middot; {{ completed }} completed</p>
     <div class="task-list">
       {% for task in tasks %}
       <div class="task-card">
         <div class="task-dot {% if task.status == 'completed' %}done{% endif %}"></div>
-        <div class="task-body">
-          <div class="task-name">{{ task.title }}</div>
-          <div class="task-meta">{{ task.created_at|date:"M d, Y" }} &middot; {{ task.status }}</div>
-        </div>
+     <div class="task-body">
+       <div class="task-name">{{ task.title }}</div>
+       <div class="task-meta">
+             {{ task.created_at|date:"M d, Y" }} &middot; {{ task.status }}
+             <span class="priority-badge priority-{{ task.priority }}">{{ task.priority }}</span>
+           </div>
+         </div>
         <div class="task-actions">
           <a href="{% url 'task_edit' task.pk %}" class="btn-icon edit" title="Edit">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">

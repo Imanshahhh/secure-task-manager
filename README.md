@@ -65,7 +65,7 @@ See `requirements.txt` for full list. Key packages:
 - django-csp
 - argon2-cffi
 
-## Screenshots
+## Screenshots Of Systems
 
 ![Login Page](docs/screenshots/login.png)
 ![Dashboard](docs/screenshots/dashboard.png)
