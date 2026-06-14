@@ -155,15 +155,14 @@ def profile_view(request):
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-        else:
-            print(form.errors)
             log_action(request.user, 'Updated profile', request)
             messages.success(request, 'Profile updated.')
             return redirect('profile')
+        else:
+            print(form.errors)
     else:
         form = ProfileForm(instance=profile)
     return render(request, 'main/profile.html', {'form': form})
-
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)
