@@ -177,8 +177,17 @@
     {% if user.is_staff %}
     <a href="{% url 'audit_log' %}">Audit Log</a>
     {% endif %}
+    <span id="session-timer" style="
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      letter-spacing: 0.03em;
+    ">⏱ 30:00</span>
     <a href="{% url 'logout' %}" class="logout">Logout</a>
-  </div>
+</div>
 </nav>
 {% endif %}
 
@@ -193,6 +202,182 @@
 <main>
   {% block content %}{% endblock %}
 </main>
+<div id="spotlight"></div>
 
+<style>
+  #spotlight {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,240,96,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: left 0.1s ease, top 0.1s ease;
+    z-index: 0;
+    top: 0;
+    left: 0;
+  }
+</style>
+
+<script>
+  document.addEventListener('mousemove', function(e) {
+    const spotlight = document.getElementById('spotlight');
+    spotlight.style.left = e.clientX + 'px';
+    spotlight.style.top = e.clientY + 'px';
+  });
+</script>
+<canvas id="particles"></canvas>
+
+<style>
+  #particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Make sure content stays above canvas */
+  nav, main, .messages {
+    position: relative;
+    z-index: 1;
+  }
+</style>
+
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const PARTICLE_COUNT = 60;
+  const CONNECTION_DISTANCE = 150;
+  const CURSOR_DISTANCE = 200;
+  const ACCENT = '200,240,96';
+
+  let mouse = { x: null, y: null };
+
+  document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.5;
+      this.vy = (Math.random() - 0.5) * 0.5;
+      this.radius = Math.random() * 2 + 1;
+      this.opacity = Math.random() * 0.5 + 0.2;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+
+      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+      // Attract to cursor
+      if (mouse.x && mouse.y) {
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < CURSOR_DISTANCE) {
+          this.x += dx * 0.02;
+          this.y += dy * 0.02;
+        }
+      }
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${ACCENT}, ${this.opacity})`;
+      ctx.fill();
+    }
+  }
+
+  const particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle());
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+
+    // Draw connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < CONNECTION_DISTANCE) {
+          const opacity = (1 - dist / CONNECTION_DISTANCE) * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(${ACCENT}, ${opacity})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+<script>
+  // Session countdown — 30 minutes
+  (function() {
+    const timerEl = document.getElementById('session-timer');
+    if (!timerEl) return;
+
+    let seconds = 30 * 60;
+
+    function update() {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      timerEl.textContent = `⏱ ${m}:${s}`;
+
+      if (seconds <= 300) {
+        timerEl.style.color = '#f0a832';
+        timerEl.style.borderColor = 'rgba(240,168,50,0.3)';
+      }
+      if (seconds <= 60) {
+        timerEl.style.color = '#ff5c5c';
+        timerEl.style.borderColor = 'rgba(255,92,92,0.3)';
+      }
+      if (seconds <= 0) {
+        window.location.href = "{% url 'logout' %}";
+        return;
+      }
+
+      seconds--;
+      setTimeout(update, 1000);
+    }
+
+    update();
+  })();
+</script>
 </body>
 </html>
