@@ -101,7 +101,11 @@ LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
 # Content Security Policy (CSP) Configurations
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "fonts.googleapis.com", "'unsafe-inline'")
-CSP_FONT_SRC = ("'self'", "fonts.gstatic.com")
-CSP_SCRIPT_SRC = ("'self'",)
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ["'self'"],
+        "style-src": ["'self'", "fonts.googleapis.com", "'unsafe-inline'"],
+        "font-src": ["'self'", "fonts.gstatic.com"],
+        "script-src": ["'self'", "'unsafe-inline'"],
+    }
+}
