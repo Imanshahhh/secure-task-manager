@@ -3,7 +3,7 @@
 A secure web application developed as part of IKB21503 Secure Software Development coursework at UniKL MIIT.
 
 ## Built With
-- Django 4.2 (Python)
+- Django 5.2.15 (Python)
 - SQLite (development)
 - Argon2 password hashing
 - OWASP ZAP for security testing
