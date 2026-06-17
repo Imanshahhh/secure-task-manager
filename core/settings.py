@@ -22,7 +22,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'csp.middleware.CSPMiddleware',  # <-- Fixed: Moved to the top so headers apply to all responses
+    'csp.middleware.CSPMiddleware',  # Fixed: Moved to top so headers apply to all responses cleanly
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,30 +73,34 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Session Security
+# ==============================================================================
+# SECURE SESSION & COOKIE CONFIGURATION (OWASP ZAP MITIGATION)
+# ==============================================================================
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False  # Set to True when deploying with production HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800
+SESSION_COOKIE_SAMESITE = 'Lax'  # Restricts cookie tracking context across tabs
 
-# CSRF
+# CSRF Settings
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False  # Set to True when deploying with production HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'    # Hardens CSRF context protection
 
 # Security Headers
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Login/Logout
+# Login/Logout Paths
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Media files
+# Media configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Logs
+# Operational Logging
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)
 
@@ -107,5 +111,7 @@ CONTENT_SECURITY_POLICY = {
         "style-src": ["'self'", "fonts.googleapis.com", "'unsafe-inline'"],
         "font-src": ["'self'", "fonts.gstatic.com"],
         "script-src": ["'self'", "'unsafe-inline'"],
+        "frame-ancestors": ["'none'"],  # Hardens against Clickjacking framing
+        "form-action": ["'self'"],      # Restricts form data targets to local host server
     }
 }
